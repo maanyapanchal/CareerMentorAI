@@ -2,7 +2,7 @@ import streamlit as st
 from groq import Groq
 
 client = Groq(
-    api_key="Your Groq API KEY"
+    api_key="Your Groq API Key"
 )
 
 
@@ -103,3 +103,80 @@ if st.button("Generate Questions"):
 
 st.markdown("---")
 st.caption("CareerMentor AI | Built using Python, Streamlit, and Groq LLM API")
+
+st.markdown("---")
+st.header("Quick Self-Assessment")
+
+st.info(
+    "Choose one of the generated interview questions above, "
+    "write your own answer, and receive AI-powered feedback "
+    "on accuracy, completeness, and communication skills."
+)
+
+question = st.text_area(
+    "Question to Evaluate",
+    placeholder="Paste one of the generated questions here"
+)
+
+user_answer = st.text_area(
+    "Your Interview Answer",
+    placeholder="Write your answer here"
+)
+
+if st.button("Evaluate Answer"):
+
+    if question.strip() == "" or user_answer.strip() == "":
+        st.warning("Please enter both the question and your answer.")
+
+    else:
+
+        evaluation_prompt = f"""
+        You are an expert technical interviewer.
+
+        Interview Question:
+        {question}
+
+        Candidate Answer:
+        {user_answer}
+
+        Evaluate the answer on:
+
+        1. Accuracy (out of 10)
+        2. Completeness (out of 10)
+        3. Communication Clarity (out of 10)
+
+        Then provide:
+
+        - Overall Assessment
+        - Strengths
+        - Weaknesses
+        - Suggested Improvements
+        - Improved Model Answer
+
+        Format the response clearly using headings.
+        """
+
+        try:
+
+            with st.spinner("Evaluating Answer..."):
+
+                response = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": evaluation_prompt
+                        }
+                    ],
+                    model="llama-3.3-70b-versatile"
+                )
+
+                evaluation = response.choices[0].message.content
+
+                st.success("Evaluation Complete!")
+
+                st.subheader("Interview Feedback")
+
+                st.write(evaluation)
+
+        except Exception as e:
+            st.error(f"Error: {e}")
