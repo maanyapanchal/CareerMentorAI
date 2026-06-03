@@ -1,67 +1,94 @@
 import streamlit as st
 from groq import Groq
-
 import os
 
-client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
+st.set_page_config(
+    page_title="CareerMentor AI",
+    layout="wide"
 )
 
+st.markdown("""
+<style>
 
+.stButton > button {
+    background-color: #8B5E3C;
+    color: white;
+    border-radius: 8px;
+    border: none;
+}
+
+.stButton > button:hover {
+    background-color: #6F472D;
+    color: white;
+}
+
+div[data-testid="stSidebar"] {
+    background-color: #F5EBDD;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+client = Groq(
+    api_key="Your_Groq_API_key"
+)
 st.title("CareerMentor AI")
 
-st.subheader("AI Powered Career Preparation and Interview Assistance Platform")
+st.markdown("""
+### Interview Preparation and Performance Analysis Platform
 
-st.write(
-    "Generate company-specific interview questions and answers "
-    "based on role, topic, and difficulty."
-)
+Generate company-specific interview questions, evaluate responses,
+and improve interview performance through AI-powered feedback.
+""")
 
+with st.sidebar:
 
-role = st.selectbox(
-    "Select Role",
-    [
-        "Software Engineer",
-        "Python Developer",
-        "Frontend Developer",
-        "Data Analyst",
-        "Data Scientist",
-        "Backend Developer"
-    ]
-)
+    st.header("Interview Configuration")
 
+    role = st.selectbox(
+        "Select Role",
+        [
+            "Software Engineer",
+            "Python Developer",
+            "Frontend Developer",
+            "Backend Developer",
+            "Data Analyst",
+            "Data Scientist"
+        ]
+    )
 
-company = st.selectbox(
-    "Select Company",
-    [
-        "General",
-        "Infosys",
-        "TCS",
-        "Wipro",
-        "Accenture",
-        "Amazon",
-        "Google",
-        "Microsoft"
-    ]
-)
+    company = st.selectbox(
+        "Select Company",
+        [
+            "General",
+            "Infosys",
+            "TCS",
+            "Wipro",
+            "Accenture",
+            "Amazon",
+            "Google",
+            "Microsoft"
+        ]
+    )
 
+    topic = st.text_input(
+        "Enter Topic",
+        placeholder="DBMS, Python, OOP, Operating Systems"
+    )
 
-topic = st.text_input(
-    "Enter Topic",
-    placeholder="Example: DBMS, Python, OOP, Operating Systems"
-)
+    difficulty = st.selectbox(
+        "Select Difficulty",
+        ["Easy", "Medium", "Hard"]
+    )
 
+st.subheader("Interview Generator")
+generate_clicked = st.button("Generate Questions")
 
-difficulty = st.selectbox(
-    "Select Difficulty",
-    ["Easy", "Medium", "Hard"]
-)
-
-
-if st.button("Generate Questions"):
+if generate_clicked:
 
     if topic.strip() == "":
         st.warning("Please enter a topic.")
+
     else:
 
         prompt = f"""
@@ -79,6 +106,7 @@ if st.button("Generate Questions"):
         """
 
         try:
+
             with st.spinner("Generating interview questions..."):
 
                 response = client.chat.completions.create(
@@ -95,29 +123,31 @@ if st.button("Generate Questions"):
 
                 st.success("Questions Generated Successfully!")
 
-                st.subheader("Generated Questions and Answers")
-
-                st.write(output)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#FDF8F2;
+                        padding:20px;
+                        border-radius:10px;
+                        color:#3E2C23;
+                        border:1px solid #E8DCCB;
+                    ">
+                    {output}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
         except Exception as e:
             st.error(f"Error: {e}")
 
+st.divider()
 
-st.markdown("---")
-st.caption("CareerMentor AI | Built using Python, Streamlit, and Groq LLM API")
-
-st.markdown("---")
-st.header("Quick Self-Assessment")
-
-st.info(
-    "Choose one of the generated interview questions above, "
-    "write your own answer, and receive AI-powered feedback "
-    "on accuracy, completeness, and communication skills."
-)
+st.header("Performance Analyzer")
 
 question = st.text_area(
     "Question to Evaluate",
-    placeholder="Paste one of the generated questions here"
+    placeholder="Paste a generated interview question"
 )
 
 user_answer = st.text_area(
@@ -125,7 +155,7 @@ user_answer = st.text_area(
     placeholder="Write your answer here"
 )
 
-if st.button("Evaluate Answer"):
+if st.button("Analyze Response"):
 
     if question.strip() == "" or user_answer.strip() == "":
         st.warning("Please enter both the question and your answer.")
@@ -154,13 +184,11 @@ if st.button("Evaluate Answer"):
         - Weaknesses
         - Suggested Improvements
         - Improved Model Answer
-
-        Format the response clearly using headings.
         """
 
         try:
 
-            with st.spinner("Evaluating Answer..."):
+            with st.spinner("Analyzing response..."):
 
                 response = client.chat.completions.create(
                     messages=[
@@ -174,11 +202,28 @@ if st.button("Evaluate Answer"):
 
                 evaluation = response.choices[0].message.content
 
-                st.success("Evaluation Complete!")
+                st.success("Analysis Complete!")
 
-                st.subheader("Interview Feedback")
-
-                st.write(evaluation)
+                st.markdown(
+                    f"""
+                    <div style="
+                        background-color:#FDF8F2;
+                        padding:20px;
+                        border-radius:10px;
+                        color:#3E2C23;
+                        border:1px solid #E8DCCB;
+                    ">
+                    {evaluation}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
         except Exception as e:
             st.error(f"Error: {e}")
+
+st.divider()
+
+st.caption(
+    "CareerMentor AI | Built using Python, Streamlit, Groq API, and Llama 3.3"
+)
