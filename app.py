@@ -28,6 +28,7 @@ div[data-testid="stSidebar"] {
 
 </style>
 """, unsafe_allow_html=True)
+
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
